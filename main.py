@@ -1,15 +1,18 @@
 from math import sqrt
 
+
 def h_manhattan(current_cell_x, current_cell_y, goal_x, goal_y):
     return abs(current_cell_x - goal_x) + abs(current_cell_y - goal_y)
+
 
 def h_euclidean(current_cell_x, current_cell_y, goal_x, goal_y):
     return sqrt(pow(current_cell_x - goal_x, 2) + pow(current_cell_y - goal_y, 2))
 
+
 def read_file():
     maze = []
 
-    f = open("input.txt", "r")
+    f = open("input2.txt", "r")
     for line in f.readlines():
         maze.append([x.strip('\n') for x in line if x != '\n'])
     return maze
@@ -38,6 +41,31 @@ def find_id_of_col_with_min_val(arr):
     # Print the index of the column with the minimum value in the 3rd row
     print("Column index with minimum value in 3rd row:", min_col_index)
     return min_col_index
+
+
+def does_it_contain(closed_list, curr_node):
+    for node in closed_list:
+        if node[0:2] == curr_node[0:2]:
+            return 1
+
+
+def open_list_node_higher_or_lower(open_list, curr_node):
+    for node in open_list:
+        if node[0:2] == curr_node[0:2]:
+            if curr_node[2] > node[2]:
+                return 1
+            else:
+                return 0
+
+
+def print_maze(maze):
+    for x in maze:
+        for i in x:
+            if i == "-":
+                print('\x1b[0;31;40m' + str(i) + '\x1b[0m', end=" ")
+            else:
+                print(str(i), end=" ")
+        print()
 
 
 maze = []
@@ -81,7 +109,7 @@ while len(open_list)!=0:
         print(node)
         if maze[node[0]][node[1]] != "#":
             # print("Abc")
-            if closed_list.__contains__(node):
+            if does_it_contain(closed_list, node) == 1:
                 print("Closed list contains node")
                 continue
             # print("Easy")
@@ -91,10 +119,8 @@ while len(open_list)!=0:
                 break
             # print("As")
             node[2] = g + h_manhattan(node[0], node[1], row_f, col_f)
-            if open_list.__contains__(node):
-                for x in open_list:
-                    if x[0] == node[0] and x[1] == node[1] and x[2]<=node[2]:
-                        break
+            if open_list_node_higher_or_lower(open_list, node) == 1:
+                continue
             print("Append")
             print(node)
             open_list.append(node)
@@ -106,4 +132,8 @@ while len(open_list)!=0:
     g = g + 1
     if flag == 'e':
         break
-    input()
+    # input()
+for node in closed_list:
+    maze[node[0]][node[1]] = '-'
+
+print_maze(maze)
