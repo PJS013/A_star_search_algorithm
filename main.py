@@ -12,7 +12,7 @@ def h_euclidean(current_cell_x, current_cell_y, goal_x, goal_y):
 def read_file():
     maze = []
 
-    f = open("input2.txt", "r")
+    f = open("input123.txt", "r")
     for line in f.readlines():
         maze.append([x.strip('\n') for x in line if x != '\n'])
     return maze
@@ -102,7 +102,8 @@ while len(open_list)!=0:
         print("You've found the exit")
         flag = 'e'
         break
-    children = [[curr_node[0]+1, curr_node[1], 100000000],[curr_node[0],curr_node[1]+1, 100000000],[curr_node[0]-1,curr_node[1], 100000000],[curr_node[0],curr_node[1]-1, 100000000]]
+    children = [[curr_node[0]+1, curr_node[1], 100000000],[curr_node[0],curr_node[1]+1, 100000000],
+                [curr_node[0]-1,curr_node[1], 100000000],[curr_node[0],curr_node[1]-1, 100000000]]
     print(children)
     for node in children:
         print("Current node")
@@ -118,7 +119,7 @@ while len(open_list)!=0:
                 print("The exit is found")
                 break
             # print("As")
-            node[2] = g + h_manhattan(node[0], node[1], row_f, col_f)
+            node[2] = g + h_euclidean(node[0], node[1], row_f, col_f)
             if open_list_node_higher_or_lower(open_list, node) == 1:
                 continue
             print("Append")
@@ -134,6 +135,7 @@ while len(open_list)!=0:
         break
     # input()
 for node in closed_list:
-    maze[node[0]][node[1]] = '-'
+    if maze[node[0]][node[1]] != 's':
+        maze[node[0]][node[1]] = '-'
 
 print_maze(maze)
