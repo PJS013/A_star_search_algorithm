@@ -66,9 +66,9 @@ while len(open_list)!=0:
     print("curr_node")
     print(curr_node)
     open_list.remove(curr_node)
-    print("after removal")
-    print(curr_node)
-    print(open_list)
+    # print("after removal")
+    # print(curr_node)
+    # print(open_list)
     closed_list.append(curr_node)
     if curr_node[0] == row_f and curr_node[1] == col_f:
         print("You've found the exit")
@@ -77,25 +77,33 @@ while len(open_list)!=0:
     children = [[curr_node[0]+1, curr_node[1], 100000000],[curr_node[0],curr_node[1]+1, 100000000],[curr_node[0]-1,curr_node[1], 100000000],[curr_node[0],curr_node[1]-1, 100000000]]
     print(children)
     for node in children:
+        print("Current node")
+        print(node)
         if maze[node[0]][node[1]] != "#":
-            print("Abc")
+            # print("Abc")
             if closed_list.__contains__(node):
+                print("Closed list contains node")
                 continue
-            print("Easy")
+            # print("Easy")
             if node[0] == row_f and node[1] == col_f:
                 flag = 'e'
                 print("The exit is found")
                 break
-            print("As")
-            node[2] = g + h_euclidean(node[0], node[1], row_f, col_f)
+            # print("As")
+            node[2] = g + h_manhattan(node[0], node[1], row_f, col_f)
             if open_list.__contains__(node):
                 for x in open_list:
                     if x[0] == node[0] and x[1] == node[1] and x[2]<=node[2]:
                         break
+            print("Append")
+            print(node)
             open_list.append(node)
     print("open list after")
     print(open_list)
+    print("Closed list after")
+    print(closed_list)
+    print()
     g = g + 1
     if flag == 'e':
         break
-    # input()
+    input()
