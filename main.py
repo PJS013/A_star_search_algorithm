@@ -1,6 +1,20 @@
 from math import sqrt
 
 
+class node():
+    def __init__(self, parent=None, x=None, y=None):
+        self.parent = parent
+        self.x = x
+        self.y = y
+
+        self.g = 0
+        self.h = 0
+        self.f = 0
+
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
+
 def h_manhattan(current_cell_x, current_cell_y, goal_x, goal_y):
     return abs(current_cell_x - goal_x) + abs(current_cell_y - goal_y)
 
@@ -12,7 +26,7 @@ def h_euclidean(current_cell_x, current_cell_y, goal_x, goal_y):
 def read_file():
     maze = []
 
-    f = open("input123.txt", "r")
+    f = open("input2.txt", "r")
     for line in f.readlines():
         maze.append([x.strip('\n') for x in line if x != '\n'])
     return maze
@@ -29,35 +43,6 @@ def find_ids(maze, char):
         y += 1
 
 
-def find_id_of_col_with_min_val(arr):
-    min_val = arr[0][2]
-    min_col_index = 0
-    if len(arr)>1:
-        for i in range(1, len(arr)):
-            if arr[i][2] < min_val:
-                min_val = arr[i][2]
-                min_col_index = i
-
-    # Print the index of the column with the minimum value in the 3rd row
-    print("Column index with minimum value in 3rd row:", min_col_index)
-    return min_col_index
-
-
-def does_it_contain(closed_list, curr_node):
-    for node in closed_list:
-        if node[0:2] == curr_node[0:2]:
-            return 1
-
-
-def open_list_node_higher_or_lower(open_list, curr_node):
-    for node in open_list:
-        if node[0:2] == curr_node[0:2]:
-            if curr_node[2] > node[2]:
-                return 1
-            else:
-                return 0
-
-
 def print_maze(maze):
     for x in maze:
         for i in x:
@@ -70,72 +55,112 @@ def print_maze(maze):
 
 maze = []
 maze = read_file()
-for i in maze:
-    print(i)
-
+print_maze(maze)
+path = []
 open_list = []
 closed_list = []
 print()
 row, col = find_ids(maze, 's')
 row_f, col_f = find_ids(maze, 'e')
-open_list.append([row,col,0])
-# open_list.append([1,1,1])
-# open_list.append([2,2,2])
-# open_list.append([3,3,3])
-# open_list.append([4,4,4])
-# open_list.append([5,5,5])
+
+start_node = node(None, row, col)
+start_node.g = 0
+start_node.h = 0
+start_node.f = 0
+x = 0
+open_list.append(start_node)
 print(open_list)
-g = 1
 flag = 'n'
-while len(open_list)!=0:
-    print("Iteration " + str(g))
-    id = find_id_of_col_with_min_val(open_list)
-    curr_node = open_list[id]
-    print("curr_node")
-    print(curr_node)
+
+while len(open_list) != 0:
+    print("Iteration " + str(x))
+
+    curr_node = open_list[0]
+    for index, item in enumerate(open_list):
+        if item.f < curr_node.f:
+            curr_node = item
+
+    # id = find_id_of_col_with_min_val(open_list)
+    # curr_node = open_list[id]
+    # print("curr_node")
+    # print(curr_node)
     open_list.remove(curr_node)
     # print("after removal")
     # print(curr_node)
     # print(open_list)
     closed_list.append(curr_node)
-    if curr_node[0] == row_f and curr_node[1] == col_f:
+    if curr_node.x == row_f and curr_node.y == col_f:
         print("You've found the exit")
         flag = 'e'
+        # path = []
+        curr = curr_node
+        while curr is not None:
+            path.append([curr_node.x, curr_node.y])
+            curr = curr.parent
         break
-    children = [[curr_node[0]+1, curr_node[1], 100000000],[curr_node[0],curr_node[1]+1, 100000000],
-                [curr_node[0]-1,curr_node[1], 100000000],[curr_node[0],curr_node[1]-1, 100000000]]
+
+
+
+    children = [[curr_node.x + 1, curr_node.y, 100000000], [curr_node.x, curr_node.y + 1, 100000000],
+                [curr_node.x - 1, curr_node.y, 100000000], [curr_node.x, curr_node.y - 1, 100000000]]
     print(children)
-    for node in children:
+    for child in children:
+        f2 = 'f'
         print("Current node")
-        print(node)
-        if maze[node[0]][node[1]] != "#":
-            # print("Abc")
-            if does_it_contain(closed_list, node) == 1:
-                print("Closed list contains node")
+        print(child)
+        if maze[child[0]][child[1]] != "#":
+
+            new_node = node(curr_node, child[0], child[1])
+
+            for closed_node in closed_list:
+                if closed_node == new_node:
+                    print("Closed list contains node")
+                    f2 = 't'
+                    break
+
+            if f2 == 't':
                 continue
-            # print("Easy")
-            if node[0] == row_f and node[1] == col_f:
+
+            if new_node.x == row_f and new_node.y == col_f:
                 flag = 'e'
                 print("The exit is found")
+                curr = curr_node
+                while curr is not None:
+                    path.append([curr.x, curr.y])
+                    curr = curr.parent
                 break
-            # print("As")
-            node[2] = g + h_euclidean(node[0], node[1], row_f, col_f)
-            if open_list_node_higher_or_lower(open_list, node) == 1:
-                continue
+
+            new_node.g = curr_node.g
+            new_node.h = h_euclidean(child[0], child[1], row_f, col_f)
+            new_node.f = new_node.g + new_node.f
+
+            for open_node in open_list:
+                if new_node == open_node and new_node.g > open_node.g:
+                    print("node g higher")
+                    continue
+
             print("Append")
-            print(node)
-            open_list.append(node)
+            print(child)
+            open_list.append(new_node)
     print("open list after")
     print(open_list)
     print("Closed list after")
     print(closed_list)
     print()
-    g = g + 1
+    x = x + 1
     if flag == 'e':
         break
     # input()
 for node in closed_list:
-    if maze[node[0]][node[1]] != 's':
-        maze[node[0]][node[1]] = '-'
+    if maze[node.x][node.y] != 's':
+        maze[node.x][node.y] = '-'
+
+
+print(path)
+for i in path:
+    if maze[i[0]][i[1]] != 's':
+        maze[i[0]][i[1]] = '+'
+
 
 print_maze(maze)
+print(path)
