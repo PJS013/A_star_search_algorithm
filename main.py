@@ -26,7 +26,7 @@ def h_euclidean(current_cell_x, current_cell_y, goal_x, goal_y):
 def read_file():
     maze = []
 
-    f = open("input2.txt", "r")
+    f = open("input123.txt", "r")
     for line in f.readlines():
         maze.append([x.strip('\n') for x in line if x != '\n'])
     return maze
@@ -48,6 +48,8 @@ def print_maze(maze):
         for i in x:
             if i == "-":
                 print('\x1b[0;31;40m' + str(i) + '\x1b[0m', end=" ")
+            elif i == "+":
+                print('\x1b[0;30;41m' + str(i) + '\x1b[0m', end=" ")
             else:
                 print(str(i), end=" ")
         print()
@@ -80,26 +82,16 @@ while len(open_list) != 0:
         if item.f < curr_node.f:
             curr_node = item
 
-    # id = find_id_of_col_with_min_val(open_list)
-    # curr_node = open_list[id]
-    # print("curr_node")
-    # print(curr_node)
     open_list.remove(curr_node)
-    # print("after removal")
-    # print(curr_node)
-    # print(open_list)
     closed_list.append(curr_node)
     if curr_node.x == row_f and curr_node.y == col_f:
         print("You've found the exit")
         flag = 'e'
-        # path = []
         curr = curr_node
         while curr is not None:
             path.append([curr_node.x, curr_node.y])
             curr = curr.parent
         break
-
-
 
     children = [[curr_node.x + 1, curr_node.y, 100000000], [curr_node.x, curr_node.y + 1, 100000000],
                 [curr_node.x - 1, curr_node.y, 100000000], [curr_node.x, curr_node.y - 1, 100000000]]
@@ -155,12 +147,10 @@ for node in closed_list:
     if maze[node.x][node.y] != 's':
         maze[node.x][node.y] = '-'
 
-
 print(path)
 for i in path:
     if maze[i[0]][i[1]] != 's':
         maze[i[0]][i[1]] = '+'
 
-
 print_maze(maze)
-print(path)
+
