@@ -1,5 +1,6 @@
-from math import sqrt
+from supporting_methods import *
 import time
+import sys
 
 
 class Node:
@@ -14,46 +15,6 @@ class Node:
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
-
-
-def h_manhattan(current_cell_x, current_cell_y, goal_x, goal_y):
-    return abs(current_cell_x - goal_x) + abs(current_cell_y - goal_y)
-
-
-def h_euclidean(current_cell_x, current_cell_y, goal_x, goal_y):
-    return sqrt(pow(current_cell_x - goal_x, 2) + pow(current_cell_y - goal_y, 2))
-
-
-def read_file():
-    maze = []
-
-    f = open("input3.txt", "r")
-    for line in f.readlines():
-        maze.append([x.strip('\n') for x in line if x != '\n'])
-    return maze
-
-
-def find_ids(maze, char):
-    y = 0
-    for row in maze:
-        x = 0
-        for col in row:
-            if col == char:
-                return y, x
-            x += 1
-        y += 1
-
-
-def print_maze(maze):
-    for row in maze:
-        for col in row:
-            if col == "-":
-                print('\x1b[0;31;40m' + str(col) + '\x1b[0m', end=" ")
-            elif col == "+":
-                print('\x1b[0;30;41m' + str(col) + '\x1b[0m', end=" ")
-            else:
-                print(str(col), end=" ")
-        print()
 
 
 def a_star(maze):
@@ -150,7 +111,7 @@ def a_star(maze):
         if maze[curr_node.x][curr_node.y] != 's' and maze[curr_node.x][curr_node.y] != 'e':
             maze[curr_node.x][curr_node.y] = '-'
         print_maze(maze)
-        # time.sleep(0.2)
+        time.sleep(0.2)
 
     print(path)
     for i in path:
@@ -158,7 +119,7 @@ def a_star(maze):
             maze[i[0]][i[1]] = '+'
 
 
-maze = read_file()
+maze = read_file(sys.argv[1])
 print_maze(maze)
 a_star(maze)
 print_maze(maze)
