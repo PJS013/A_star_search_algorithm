@@ -1,4 +1,5 @@
 from math import sqrt
+import time
 
 
 class Node:
@@ -15,12 +16,6 @@ class Node:
         return self.x == other.x and self.y == other.y
 
 
-def h_diagonal(current_cell_x, current_cell_y, goal_x, goal_y):
-    dx = abs(current_cell_x - goal_x)
-    dy = abs(current_cell_y - goal_y)
-    return (dx + dy) + (sqrt(2) - 2) * min(dx, dy)
-
-
 def h_manhattan(current_cell_x, current_cell_y, goal_x, goal_y):
     return abs(current_cell_x - goal_x) + abs(current_cell_y - goal_y)
 
@@ -32,7 +27,7 @@ def h_euclidean(current_cell_x, current_cell_y, goal_x, goal_y):
 def read_file():
     maze = []
 
-    f = open("input.txt", "r")
+    f = open("input3.txt", "r")
     for line in f.readlines():
         maze.append([x.strip('\n') for x in line if x != '\n'])
     return maze
@@ -140,10 +135,8 @@ def a_star(maze):
                                 print("G value of new node is higher than the its value from the open list")
                                 break
                             else:
-                                print("Node on the list")
-                                open_node.g = child_node.g
-                                open_node.h = child_node.h
-                                open_node.f = child_node.f
+                                open_list.remove(child_node)
+                                open_list.append(child_node)
                                 break
                 else:
                     print("Append")
@@ -154,10 +147,10 @@ def a_star(maze):
                 print("Wall")
         print()
         iteration = iteration + 1
-        # input()
-    for node in closed_list:
-        if maze[node.x][node.y] != 's' and maze[node.x][node.y] != 'e':
-            maze[node.x][node.y] = '-'
+        if maze[curr_node.x][curr_node.y] != 's' and maze[curr_node.x][curr_node.y] != 'e':
+            maze[curr_node.x][curr_node.y] = '-'
+        print_maze(maze)
+        # time.sleep(0.2)
 
     print(path)
     for i in path:
@@ -167,7 +160,5 @@ def a_star(maze):
 
 maze = read_file()
 print_maze(maze)
-# print(find_ids(maze, 's'))
-
 a_star(maze)
 print_maze(maze)
