@@ -17,7 +17,7 @@ class Node:
         return self.x == other.x and self.y == other.y
 
 
-def a_star(maze):
+def a_star(maze, heuristics):
     path = []
     # initialize open and closed list. Open list stores nodes that still can be visited,
     # closed list stores visited nodes
@@ -37,9 +37,7 @@ def a_star(maze):
 
     open_list.append(start_node)
 
-    iteration = 0
     while len(open_list) != 0:
-        print("Iteration " + str(iteration))
 
         # Find node with smallest value of f to be the current node
         curr_node = open_list[0]
@@ -64,26 +62,26 @@ def a_star(maze):
         # Generate four children of the current node
         children = [[curr_node.x + 1, curr_node.y], [curr_node.x, curr_node.y + 1],
                     [curr_node.x - 1, curr_node.y], [curr_node.x, curr_node.y - 1]]
-        print(children)
 
         for child in children:
-            print("Current node")
-            print(child[0:2])
 
             # For each child check, if it is not a wall
             if maze[child[0]][child[1]] != "#":
-
                 child_node = Node(curr_node, child[0], child[1])
                 # Check if the child is not in the closed list, that is, if it was not visited yet.
                 # If so, then continue to the next child
                 if closed_list.__contains__(child_node):
-                    print("Closed list contains node")
                     continue
 
                 # Asses the child's parameters: g being the distance from the starting node,
                 # h, that is the distance from the finishing node and f, which is the sum of previous ones
                 child_node.g = curr_node.g + 1
-                child_node.h = h_euclidean(child_node.x, child_node.y, row_f, col_f)
+                if heuristics.lower() == "euclidean":
+                    child_node.h = h_euclidean(child_node.x, child_node.y, row_f, col_f)
+                elif heuristics.lower() == "manhattan":
+                    child_node.h = h_manhattan(child_node.x, child_node.y, row_f, col_f)
+                else:
+                    return -1
                 child_node.f = child_node.g + child_node.h
 
                 # Lastly check if the node is not already present in the open_list. If it is we have to compare
@@ -93,33 +91,30 @@ def a_star(maze):
                     for open_node in open_list:
                         if child_node == open_node:
                             if child_node.g >= open_node.g:
-                                print("G value of new node is higher than the its value from the open list")
                                 break
                             else:
                                 open_list.remove(child_node)
                                 open_list.append(child_node)
                                 break
                 else:
-                    print("Append")
-                    print(str(child_node.g))
                     open_list.append(child_node)
 
-            else:
-                print("Wall")
         print()
-        iteration = iteration + 1
         if maze[curr_node.x][curr_node.y] != 's' and maze[curr_node.x][curr_node.y] != 'e':
             maze[curr_node.x][curr_node.y] = '-'
         print_maze(maze)
-        time.sleep(0.2)
+        time.sleep(0.1)
 
-    print(path)
     for i in path:
         if maze[i[0]][i[1]] != 's' and maze[i[0]][i[1]] != 'e':
             maze[i[0]][i[1]] = '+'
+    return 0
 
 
 maze = read_file(sys.argv[1])
 print_maze(maze)
-a_star(maze)
-print_maze(maze)
+output = a_star(maze, sys.argv[2])
+if output != 0:
+    print("There is no such heuristic method")
+else:
+    print_maze(maze)
