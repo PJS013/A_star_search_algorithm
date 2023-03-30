@@ -15,6 +15,12 @@ class Node:
         return self.x == other.x and self.y == other.y
 
 
+def h_diagonal(current_cell_x, current_cell_y, goal_x, goal_y):
+    dx = abs(current_cell_x - goal_x)
+    dy = abs(current_cell_y - goal_y)
+    return (dx + dy) + (sqrt(2) - 2) * min(dx, dy)
+
+
 def h_manhattan(current_cell_x, current_cell_y, goal_x, goal_y):
     return abs(current_cell_x - goal_x) + abs(current_cell_y - goal_y)
 
@@ -26,7 +32,7 @@ def h_euclidean(current_cell_x, current_cell_y, goal_x, goal_y):
 def read_file():
     maze = []
 
-    f = open("input3.txt", "r")
+    f = open("input.txt", "r")
     for line in f.readlines():
         maze.append([x.strip('\n') for x in line if x != '\n'])
     return maze
@@ -44,14 +50,14 @@ def find_ids(maze, char):
 
 
 def print_maze(maze):
-    for x in maze:
-        for i in x:
-            if i == "-":
-                print('\x1b[0;31;40m' + str(i) + '\x1b[0m', end=" ")
-            elif i == "+":
-                print('\x1b[0;30;41m' + str(i) + '\x1b[0m', end=" ")
+    for row in maze:
+        for col in row:
+            if col == "-":
+                print('\x1b[0;31;40m' + str(col) + '\x1b[0m', end=" ")
+            elif col == "+":
+                print('\x1b[0;30;41m' + str(col) + '\x1b[0m', end=" ")
             else:
-                print(str(i), end=" ")
+                print(str(col), end=" ")
         print()
 
 
@@ -105,8 +111,6 @@ def a_star(maze):
         print(children)
 
         for child in children:
-            flag_closed_list = 'f'
-            flag_open_list = 'f'
             print("Current node")
             print(child[0:2])
 
@@ -116,13 +120,8 @@ def a_star(maze):
                 child_node = Node(curr_node, child[0], child[1])
                 # Check if the child is not in the closed list, that is, if it was not visited yet.
                 # If so, then continue to the next child
-                for closed_node in closed_list:
-                    if closed_node == child_node:
-                        print("Closed list contains node")
-                        flag_closed_list = 't'
-                        break
-
-                if flag_closed_list == 't':
+                if closed_list.__contains__(child_node):
+                    print("Closed list contains node")
                     continue
 
                 # Asses the child's parameters: g being the distance from the starting node,
@@ -134,28 +133,23 @@ def a_star(maze):
                 # Lastly check if the node is not already present in the open_list. If it is we have to compare
                 # its g parameter, the distance traversed from the starting node. If it is higher, than we continue to
                 # the next child. If it is not on the list, then we add the node to the open_list
-                for open_node in open_list:
-                    if child_node == open_node:
-                        if child_node.g >= open_node.g:
-                            print("G value of new node is higher than the its value from the open list")
-                            flag_open_list = 't'
-                            break
-                        else:
-                            print("Node on the list")
-                            flag_open_list = 'o'
-                            break
-                if flag_open_list == 't':
-                    continue
-                elif flag_open_list == 'o':
-                    for i in range(len(open_list)):
-                        if open_list[i] == child_node:
-                            open_list[i].g = child_node.g
-                            open_list[i].h = child_node.h
-                            open_list[i].f = child_node.f
-                elif flag_open_list == 'f':
+                if open_list.__contains__(child_node):
+                    for open_node in open_list:
+                        if child_node == open_node:
+                            if child_node.g >= open_node.g:
+                                print("G value of new node is higher than the its value from the open list")
+                                break
+                            else:
+                                print("Node on the list")
+                                open_node.g = child_node.g
+                                open_node.h = child_node.h
+                                open_node.f = child_node.f
+                                break
+                else:
                     print("Append")
                     print(str(child_node.g))
                     open_list.append(child_node)
+
             else:
                 print("Wall")
         print()
@@ -173,5 +167,7 @@ def a_star(maze):
 
 maze = read_file()
 print_maze(maze)
+# print(find_ids(maze, 's'))
+
 a_star(maze)
 print_maze(maze)
